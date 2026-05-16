@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="湿实验 × 工程设计 × AI自动化全栈构建者">
+<title>黄心颖</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Han+Serif+SC:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f0a;
+    --bg2: #0f1a0f;
+    --text: #e8f0e8;
+    --text-dim: #7a9a7a;
+    --accent: #5adf8a;
+    --accent2: #2eb85c;
+    --accent3: #a8f0c0;
+    --border: #1e3a1e;
+    --card: #0d1a0d;
+    --tag-bio: #1a3a2a;
+    --tag-bio-text: #5adf8a;
+    --tag-eng: #2a1a3a;
+    --tag-eng-text: #a07adf;
+    --tag-ai: #1a2a3a;
+    --tag-ai-text: #7ab0df;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Source Han Serif SC', 'Playfair Display', serif;
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── Grain overlay ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.5;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2.5rem;
+    background: rgba(10, 15, 10, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-name {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 1.1rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    font-family: 'JetBrains Mono', monospace;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--accent); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 0 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    right: -10%;
+    width: 60%;
+    height: 140%;
+    background: radial-gradient(ellipse at center, rgba(90, 223, 138, 0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.2s;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: clamp(3rem, 8vw, 6rem);
+    line-height: 1;
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.4s;
+  }
+
+  .hero h1 span { color: var(--accent); }
+
+  .hero-subtitle {
+    font-size: 1.05rem;
+    color: var(--text-dim);
+    margin-bottom: 0.8rem;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.55s;
+    line-height: 1.9;
+  }
+
+  .hero-subtitle strong { color: var(--accent3); font-weight: 600; }
+
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+    margin-top: 2.5rem;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.75s;
+  }
+
+  .stat-item { text-align: left; }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--accent);
+    display: block;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    margin-top: 0.3rem;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.3em;
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 5rem 2.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.25em;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+    line-height: 1.15;
+  }
+
+  .section-sub {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    margin-bottom: 3rem;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── TIMELINE ── */
+  .timeline { position: relative; }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8.5rem;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--border), transparent);
+  }
+
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 9rem 1fr;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+    position: relative;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .timeline-item.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .timeline-meta {
+    text-align: right;
+    padding-top: 0.15rem;
+  }
+
+  .tl-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+
+  .tl-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+  }
+
+  .tl-tag.bio { background: var(--tag-bio); color: var(--tag-bio-text); }
+  .tl-tag.eng { background: var(--tag-eng); color: var(--tag-eng-text); }
+  .tl-tag.ai  { background: var(--tag-ai);  color: var(--tag-ai-text);  }
+  .tl-tag.honor { background: #2a2a1a; color: #dfdf5a; }
+
+  .timeline-dot {
+    position: absolute;
+    left: calc(9rem + 2rem - 5px);
+    top: 0.6rem;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+  }
+
+  .timeline-content { padding-top: 0; }
+
+  .tl-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+
+  .tl-desc {
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    line-height: 1.75;
+  }
+
+  .tl-desc strong { color: var(--accent3); }
+
+  /* ── JD TABLE ── */
+  .jd-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-size: 0.88rem;
+  }
+
+  .jd-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .jd-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.65;
+  }
+
+  .jd-table tr:hover td { background: var(--card); }
+
+  .jd-table td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+    width: 35%;
+  }
+
+  /* ── PROJECT CARDS ── */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .project-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    transition: border-color 0.25s, transform 0.25s;
+  }
+
+  .project-card:hover {
+    border-color: var(--accent2);
+    transform: translateY(-3px);
+  }
+
+  .proj-category {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    margin-bottom: 0.6rem;
+  }
+
+  .proj-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.7rem;
+    color: var(--text);
+  }
+
+  .proj-desc {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  .proj-highlight {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent3);
+    border-top: 1px solid var(--border);
+    padding-top: 0.8rem;
+    line-height: 1.6;
+  }
+
+  /* ── SKILLS ── */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .skill-block {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+  }
+
+  .skill-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 0.8rem;
+  }
+
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .skill-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    padding: 0.25rem 0.6rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--text-dim);
+  }
+
+  /* ── ABOUT ── */
+  .about-manifesto {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem 4rem;
+    margin-bottom: 3rem;
+  }
+
+  .manifesto-item { border-left: 2px solid var(--accent2); padding-left: 1.5rem; }
+
+  .manifesto-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    margin-bottom: 0.5rem;
+  }
+
+  .manifesto-text {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: var(--text);
+  }
+
+  .profile-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem 2rem;
+  }
+
+  .profile-row {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.88rem;
+    align-items: baseline;
+  }
+
+  .profile-key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+  }
+
+  .profile-val { color: var(--text); font-weight: 600; }
+
+  /* ── CONTACT / FOOTER ── */
+  .footer-cta {
+    text-align: center;
+    padding: 5rem 2.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .footer-cta h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 900;
+    margin-bottom: 1rem;
+  }
+
+  .footer-cta h2 span { color: var(--accent); }
+
+  .contact-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 2rem 0;
+    flex-wrap: wrap;
+  }
+
+  .contact-link {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .contact-link:hover { color: var(--accent); border-color: var(--accent); }
+
+  footer {
+    text-align: center;
+    padding: 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50%       { transform: translateX(-50%) translateY(6px); }
+  }
+
+  /* ── DIVIDER ── */
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 0.8rem 1.5rem; }
+    .nav-links { gap: 1rem; }
+    .hero { padding: 0 1.5rem; }
+    section { padding: 3.5rem 1.5rem; }
+    .timeline::before { left: 0; }
+    .timeline-item { grid-template-columns: 1fr; gap: 0.5rem; }
+    .timeline-meta { text-align: left; }
+    .timeline-dot { display: none; }
+    .about-manifesto { grid-template-columns: 1fr; }
+    .profile-card { grid-template-columns: 1fr; }
+    .hero-stats { gap: 1.5rem; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-name">黄心颖</span>
+  <ul class="nav-links">
+    <li><a href="#timeline">时间轴</a></li>
+    <li><a href="#projects">项目</a></li>
+    <li><a href="#skills">技能</a></li>
+    <li><a href="#research">学术</a></li>
+    <li><a href="#about">关于</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <p class="hero-badge">BUILD LOG 2026.06 · BIOMEDICAL × ENGINEERING × AI</p>
+    <h1>黄<span>心</span>颖</h1>
+    <p class="hero-subtitle">
+      湿实验 · 工程设计 · AI 自动化<br>
+      汕头大学生物医学工程在读。从细胞培养到 STM32 状态机，<br>
+      从 FEA 仿真到 Opentrons 自动化——<br>
+      <strong>用工程方法论思考每一个生物医学问题。</strong>
+    </p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-num">5+</span>
+        <span class="stat-label">完整项目</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">3</span>
+        <span class="stat-label">技术方向</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">2027</span>
+        <span class="stat-label">届 · 生物医学工程</span>
+      </div>
+    </div>
+  </div>
+  <p class="hero-scroll">SCROLL ↓</p>
+</div>
+
+<hr class="section-divider">
+
+<!-- MATCH TABLE -->
+<section id="match">
+  <p class="section-number">00</p>
+  <h2 class="section-title">岗位匹配</h2>
+  <p class="section-sub">华大智造 · 生化实验实习生（自动化与AI方向）</p>
+  <table class="jd-table">
+    <thead>
+      <tr>
+        <th>JD 要求</th>
+        <th>我的对应能力</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>生物化学实验操作能力</td>
+        <td>独立完成 4T1 细胞培养、CCK-8 毒性检测、DAPI/活死细胞荧光染色全流程</td>
+      </tr>
+      <tr>
+        <td>实验自动化 / AI 应用</td>
+        <td>STM32 状态机 + 传感器反馈控制；正在自学 Opentrons，规划 AI 实验助手 Demo</td>
+      </tr>
+      <tr>
+        <td>数据处理（Excel / Python）</td>
+        <td>Origin 数据分析、P-value 统计检验；Python 数据处理基础</td>
+      </tr>
+      <tr>
+        <td>责任心 / 动手能力</td>
+        <td>主导食管异物钳项目从逆向建模到物理装配全流程，交付可活动实物原型</td>
+      </tr>
+      <tr>
+        <td>自动化移液平台</td>
+        <td>正在自学 Opentrons Python Protocol API，理解 transfer/distribute/mix 核心操作</td>
+      </tr>
+      <tr>
+        <td>AI / LLM Agent 项目经验</td>
+        <td>规划 AI 实验助手：输入实验需求 → 自动生成 Opentrons protocol，对标 GLI Design 环节</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<hr class="section-divider">
+
+<!-- TIMELINE -->
+<section id="timeline">
+  <p class="section-number">01</p>
+  <h2 class="section-title">项目时间轴</h2>
+  <p class="section-sub">从实验台到工程图纸，跨越湿实验、嵌入式与 AI 自动化三个方向</p>
+
+  <div class="timeline">
+
+    <div class="timeline-item">
+      <div class="timeline-meta">
+        <span class="tl-date">2025.10 — 2026.01</span>
+        <span class="tl-tag eng">工程设计</span>
+      </div>
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <p class="tl-title">食管异物钳人机工程学改良设计</p>
+        <p class="tl-desc">
+          引入 Pugh 矩阵对 6 套概念方案进行量化评估，驱动双功能钳口方案收敛。
+          深度复刻核心传动结构，完成逆向建模。执行 FEA 仿真验证结构强度，
+          主导零部件后处理与物理装配，<strong>交付具备活动性与机械稳定性的实物验证原型</strong>。
+        </p>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-meta">
+        <span class="tl-date">2025.10 — 2026.01</span>
+        <span class="tl-tag ai">嵌入式</span>
+      </div>
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <p class="tl-title">智能环境监测系统（STM32）</p>
+        <p class="tl-desc">
+          架构"数据采集 - 阈值判定 - 语音播报"有限状态机工作流，降低软硬件沟通壁垒。
+          完成传感器搭建与系统级联调，实现多传感器数据融合。
+          规划红外模块联动闭环控制方案，<strong>自动化核心：有限状态机 + 反馈控制 + 传感器融合</strong>。
+        </p>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-meta">
+        <span class="tl-date">2025.11 — 2025.12</span>
+        <span class="tl-tag bio">湿实验</span>
+      </div>
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <p class="tl-title">多模态生物组织与医用复合材料力学研究</p>
+        <p class="tl-desc">
+          依托生物材料力学试验机对肌腱、长骨、碳纤维执行标准化单轴力学测试。
+          计算弹性模量，深度解析<strong>碳纤维刚度与生物组织粘弹性差异</strong>。
+        </p>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-meta">
+        <span class="tl-date">2025.12 — 2026.01</span>
+        <span class="tl-tag bio">湿实验</span>
+      </div>
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <p class="tl-title">抗肿瘤药物体外评估</p>
+        <p class="tl-desc">
+          培养 4T1 小鼠乳腺癌细胞，设计 CCK-8 实验评估阿霉素杀伤效果。
+          完成 P-value 统计分析，验证实验显著性，<strong>输出量化结论</strong>。
+        </p>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-meta">
+        <span class="tl-date">2026.03 — 至今</span>
+        <span class="tl-tag eng">工程 + AI</span>
+      </div>
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <p class="tl-title">CGM 微针阵列设计</p>
+        <p class="tl-desc">
+          针对连续血糖监测（CGM）临床痛点，完成微针阵列拓扑结构前沿文献系统调研。
+          运用 Fusion 360 构建微针参数化 3D 模型，通过 FEA 应力分析优化穿透效率与机械强度平衡。
+          规划基于 SLA 3D 打印 + 生物相容性聚合物的制造路径。
+          <strong>AI Workflow 视野：规划 LLM 辅助文献综述 → 参数优化 → 自动化测试 → 数据反馈闭环</strong>。
+        </p>
+      </div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-meta">
+        <span class="tl-date">规划中</span>
+        <span class="tl-tag ai">AI</span>
+      </div>
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <p class="tl-title">AI 实验助手 Demo（Opentrons）</p>
+        <p class="tl-desc">
+          规划中：输入实验需求 → LLM 自动生成 Opentrons Python Protocol。
+          正在自学 Opentrons Protocol API，理解 transfer/distribute/mix 核心操作。
+          <strong>目标：对标 GLI Design 环节，实现实验流程的自然语言编排</strong>。
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- PROJECTS -->
+<section id="projects">
+  <p class="section-number">02</p>
+  <h2 class="section-title">核心项目</h2>
+  <p class="section-sub">跨越湿实验、工程设计、嵌入式三个方向的完整交付</p>
+
+  <div class="projects-grid">
+
+    <div class="project-card">
+      <p class="proj-category">医疗器械 · 工程设计</p>
+      <p class="proj-title">食管异物钳改良设计</p>
+      <p class="proj-desc">
+        逆向工程 → Pugh 矩阵评估 → FEA 仿真 → 3D 打印 → 物理验证完整闭环。
+        6套方案量化对比，交付具备机械稳定性的实物原型。
+      </p>
+      <p class="proj-highlight">逆向建模 · FEA仿真 · 3D打印 · 物理装配</p>
+    </div>
+
+    <div class="project-card">
+      <p class="proj-category">嵌入式 · 自动化</p>
+      <p class="proj-title">STM32 智能环境监测系统</p>
+      <p class="proj-desc">
+        有限状态机架构 + 多传感器数据融合 + 语音播报控制闭环。
+        完整实现"采集 - 判定 - 响应"自动化工作流。
+      </p>
+      <p class="proj-highlight">STM32 · 状态机 · 传感器融合 · 反馈控制</p>
+    </div>
+
+    <div class="project-card">
+      <p class="proj-category">生物医学工程 · 研发</p>
+      <p class="proj-title">CGM 微针阵列参数化设计</p>
+      <p class="proj-desc">
+        Fusion 360 参数化建模 + FEA 应力分析。
+        规划 LLM 辅助文献综述到自动化测试的完整 AI Workflow 闭环。
+      </p>
+      <p class="proj-highlight">Fusion360 · FEA · SLA打印 · AI Workflow规划</p>
+    </div>
+
+    <div class="project-card">
+      <p class="proj-category">细胞生物学 · 湿实验</p>
+      <p class="proj-title">抗肿瘤药物体外评估</p>
+      <p class="proj-desc">
+        4T1 细胞培养 → CCK-8 毒性检测 → P-value 统计分析。
+        完整独立执行细胞实验全流程，输出量化科学结论。
+      </p>
+      <p class="proj-highlight">细胞培养 · CCK-8 · 统计检验 · Origin分析</p>
+    </div>
+
+    <div class="project-card">
+      <p class="proj-category">材料科学 · 实验</p>
+      <p class="proj-title">生物组织力学对比研究</p>
+      <p class="proj-desc">
+        对肌腱、长骨、碳纤维执行标准化力学测试，计算弹性模量，
+        解析生物组织粘弹性与工程材料刚度差异。
+      </p>
+      <p class="proj-highlight">力学测试 · 弹性模量 · 材料对比分析</p>
+    </div>
+
+    <div class="project-card">
+      <p class="proj-category">AI 自动化 · 规划中</p>
+      <p class="proj-title">AI 实验助手（Opentrons）</p>
+      <p class="proj-desc">
+        正在自学 Opentrons Python Protocol API。
+        规划：自然语言 → LLM → 自动生成实验 Protocol，
+        对标 GLI Design 环节的智能化替代。
+      </p>
+      <p class="proj-highlight">Opentrons · LLM · Protocol生成 · 实验自动化</p>
+    </div>
+
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- SKILLS -->
+<section id="skills">
+  <p class="section-number">03</p>
+  <h2 class="section-title">专业技能</h2>
+  <p class="section-sub">横跨实验操作、工程设计、数据分析与 AI 自动化</p>
+
+  <div class="skills-grid">
+    <div class="skill-block">
+      <p class="skill-cat">实验操作</p>
+      <div class="skill-tags">
+        <span class="skill-tag">4T1细胞培养</span>
+        <span class="skill-tag">CCK-8毒性检测</span>
+        <span class="skill-tag">DAPI荧光染色</span>
+        <span class="skill-tag">活死细胞染色</span>
+        <span class="skill-tag">生物材料力学测试</span>
+      </div>
+    </div>
+
+    <div class="skill-block">
+      <p class="skill-cat">CAD / 仿真</p>
+      <div class="skill-tags">
+        <span class="skill-tag">Fusion 360</span>
+        <span class="skill-tag">参数化建模</span>
+        <span class="skill-tag">有限元分析 FEA</span>
+        <span class="skill-tag">逆向工程</span>
+      </div>
+    </div>
+
+    <div class="skill-block">
+      <p class="skill-cat">制造 / 原型</p>
+      <div class="skill-tags">
+        <span class="skill-tag">SLA 3D打印</span>
+        <span class="skill-tag">FDM 3D打印</span>
+        <span class="skill-tag">原型装配</span>
+        <span class="skill-tag">零部件后处理</span>
+      </div>
+    </div>
+
+    <div class="skill-block">
+      <p class="skill-cat">嵌入式 / 自动化</p>
+      <div class="skill-tags">
+        <span class="skill-tag">STM32</span>
+        <span class="skill-tag">传感器搭建</span>
+        <span class="skill-tag">有限状态机</span>
+        <span class="skill-tag">反馈控制</span>
+        <span class="skill-tag">Opentrons（自学中）</span>
+      </div>
+    </div>
+
+    <div class="skill-block">
+      <p class="skill-cat">数据分析</p>
+      <div class="skill-tags">
+        <span class="skill-tag">Origin</span>
+        <span class="skill-tag">统计检验 P-value</span>
+        <span class="skill-tag">Python 基础</span>
+      </div>
+    </div>
+
+    <div class="skill-block">
+      <p class="skill-cat">语言</p>
+      <div class="skill-tags">
+        <span class="skill-tag">CET-6</span>
+        <span class="skill-tag">全英文文献检索</span>
+        <span class="skill-tag">技术报告撰写</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- EDUCATION -->
+<section id="research">
+  <p class="section-number">04</p>
+  <h2 class="section-title">教育背景</h2>
+  <p class="section-sub">工程化生物思维的来源</p>
+
+  <div style="background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 2rem; margin-bottom: 1.5rem;">
+    <p style="font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; margin-bottom:0.4rem;">汕头大学</p>
+    <p style="font-family:'JetBrains Mono',monospace; font-size:0.78rem; color:var(--text-dim); margin-bottom:1.2rem; letter-spacing:0.08em;">本科 · 生物医学工程 · 2023 — 2027届</p>
+    <p style="font-size:0.88rem; color:var(--text-dim); line-height:1.75;">
+      主修课程：数字电路、模拟电路、生物力学、C语言
+    </p>
+  </div>
+
+  <div style="background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 2rem;">
+    <p style="font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--accent); letter-spacing:0.15em; margin-bottom:1rem;">求职意向</p>
+    <p style="font-size:0.95rem; line-height:1.8;">
+      华大智造 · 生化实验实习生（自动化与AI方向）<br>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:0.78rem; color:var(--text-dim);">深圳 · 2026年6–9月 · 全职</span>
+    </p>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ABOUT -->
+<section id="about">
+  <p class="section-number">05</p>
+  <h2 class="section-title">关于我</h2>
+  <p class="section-sub">—</p>
+
+  <div class="about-manifesto">
+    <div class="manifesto-item">
+      <p class="manifesto-label">工程化生物思维</p>
+      <p class="manifesto-text">
+        我是生物医学工程学生，不是纯实验员，也不是纯程序员。
+        这意味着我处理问题的方式不同：用参数化建模、量化评估、
+        状态机设计、反馈闭环来思考生物医学问题。
+      </p>
+    </div>
+    <div class="manifesto-item">
+      <p class="manifesto-label">AI × 自动化前沿</p>
+      <p class="manifesto-text">
+        我相信 AI Agent 是实验研发的下一个基础设施。
+        正在探索将 LLM、Opentrons 自动化平台和传统湿实验
+        整合为闭环研发系统的可能性。
+      </p>
+    </div>
+    <div class="manifesto-item">
+      <p class="manifesto-label">跨界交付能力</p>
+      <p class="manifesto-text">
+        门槛从来不是问题——从细胞培养到 STM32 固件，
+        从 Fusion 360 到 FEA 仿真，每一个方向都从零到完整交付。
+      </p>
+    </div>
+    <div class="manifesto-item">
+      <p class="manifesto-label">系统性思维</p>
+      <p class="manifesto-text">
+        习惯用工程方法论解决生物医学问题：先建模，再仿真，
+        再物理验证。不只是"会做实验"，而是关注整个研发闭环。
+      </p>
+    </div>
+  </div>
+
+  <div class="profile-card">
+    <div class="profile-row">
+      <span class="profile-key">院校</span>
+      <span class="profile-val">汕头大学</span>
+    </div>
+    <div class="profile-row">
+      <span class="profile-key">专业</span>
+      <span class="profile-val">生物医学工程</span>
+    </div>
+    <div class="profile-row">
+      <span class="profile-key">城市</span>
+      <span class="profile-val">汕头 → 深圳</span>
+    </div>
+    <div class="profile-row">
+      <span class="profile-key">状态</span>
+      <span class="profile-val">求职中 · 2026暑期</span>
+    </div>
+    <div class="profile-row">
+      <span class="profile-key">英语</span>
+      <span class="profile-val">CET-6</span>
+    </div>
+    <div class="profile-row">
+      <span class="profile-key">届别</span>
+      <span class="profile-val">2027届</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER CTA -->
+<div class="footer-cta">
+  <h2>期待加入，<span>一起构建</span>。</h2>
+  <p style="color:var(--text-dim); font-size:0.9rem; margin-bottom:0.5rem;">有想法？欢迎联系。</p>
+  <div class="contact-links">
+    <a class="contact-link" href="tel:18925937110">📱 18925937110</a>
+    <a class="contact-link" href="mailto:3251158661@qq.com">✉ 3251158661@qq.com</a>
+  </div>
+</div>
+
+<footer>
+  黄心颖 · 湿实验 · 工程设计 · AI 自动化 · 2026
+</footer>
+
+<script>
+  // Scroll reveal for timeline items
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, i * 80);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.timeline-item').forEach(el => observer.observe(el));
+
+  // Nav active state
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      if (window.scrollY >= section.offsetTop - 120) {
+        current = section.getAttribute('id');
+      }
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + current
+        ? 'var(--accent)'
+        : 'var(--text-dim)';
+    });
+  });
+</script>
+
+</body>
+</html>
