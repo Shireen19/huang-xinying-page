@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Seth Howes 家庭基因组测序案例研究：AI + 自动化实验与 Design-Build-Test-Learn 闭环拆解">
+<title>Seth Howes 家庭基因组测序案例</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Han+Serif+SC:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f0a;
+    --bg2: #0f1a0f;
+    --text: #e8f0e8;
+    --text-dim: #7a9a7a;
+    --accent: #5adf8a;
+    --accent2: #2eb85c;
+    --accent3: #a8f0c0;
+    --border: #1e3a1e;
+    --card: #0d1a0d;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Source Han Serif SC', 'Playfair Display', serif;
+    font-size: 16px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.5;
+  }
+
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1rem 2.5rem;
+    background: rgba(10, 15, 10, 0.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-name {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 1.05rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    text-decoration: none;
+  }
+
+  .back-link {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .back-link:hover { color: var(--accent); }
+
+  main {
+    width: min(1120px, calc(100% - 3rem));
+    margin: 0 auto;
+  }
+
+  .hero {
+    min-height: 74vh;
+    display: grid;
+    align-content: center;
+    padding: 5rem 0 4rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.6rem, 7vw, 6.5rem);
+    line-height: 0.98;
+    font-weight: 900;
+    max-width: 960px;
+    margin-bottom: 1.6rem;
+  }
+
+  .lead {
+    max-width: 780px;
+    color: var(--accent3);
+    font-size: clamp(1rem, 2vw, 1.25rem);
+  }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: 3rem;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .metric {
+    background: var(--bg2);
+    padding: 1.35rem;
+    min-height: 118px;
+  }
+
+  .metric strong {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    font-size: 1.35rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .metric span {
+    color: var(--text-dim);
+    font-size: 0.86rem;
+  }
+
+  section {
+    padding: 4.5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.9rem, 4vw, 3.2rem);
+    line-height: 1.08;
+    margin-bottom: 1.5rem;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    color: var(--accent3);
+    font-size: 1.25rem;
+    margin-bottom: 0.6rem;
+  }
+
+  p { color: var(--text); }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+
+  .card, .step, .quote {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.45rem;
+  }
+
+  .card p, .step p { color: var(--text-dim); }
+
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .step {
+    min-height: 168px;
+  }
+
+  .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.9rem;
+  }
+
+  .data-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .tagline {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    font-size: 0.8rem;
+    margin-top: 1rem;
+  }
+
+  .quote {
+    border-left: 3px solid var(--accent);
+    color: var(--accent3);
+    font-size: 1.1rem;
+  }
+
+  footer {
+    padding: 2rem 0 3rem;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+  }
+
+  @media (max-width: 840px) {
+    nav { padding: 0.9rem 1.2rem; }
+    main { width: min(100% - 2rem, 1120px); }
+    .hero { min-height: auto; padding-top: 4rem; }
+    .metrics, .two-col, .data-grid, .flow { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-name" href="index.html">黄心颖</a>
+  <a class="back-link" href="index.html#projects">← 返回核心项目</a>
+</nav>
+
+<main>
+  <section class="hero">
+    <p class="eyebrow">AI + 自动化实验 · Design-Build-Test-Learn</p>
+    <h1>Seth Howes 家庭基因组测序案例</h1>
+    <p class="lead">
+      一个英国软件工程师在自家厨房桌面完成全基因组测序：从口腔拭子采样、DNA 提取、文库构建、MinION 测序，到 Dorado basecalling 与 minimap2 比对，全程离线完成。
+    </p>
+    <div class="metrics">
+      <div class="metric"><strong>72h</strong><span>从样本到 aligned BAM 的完整闭环</span></div>
+      <div class="metric"><strong>~30Gb</strong><span>纳米孔测序数据产出</span></div>
+      <div class="metric"><strong>~10x</strong><span>全基因组平均覆盖度</span></div>
+      <div class="metric"><strong>$1,100</strong><span>单次耗材成本估算</span></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="section-kicker">Case Overview</p>
+    <h2>为什么这个案例值得放进项目集</h2>
+    <div class="two-col">
+      <div class="card">
+        <h3>基因组学工具民主化</h3>
+        <p>案例展示了 MinION 这类便携式测序仪如何把过去属于大型中心实验室的能力，下沉到个人工作台。Seth 没有把 DNA 寄给消费级检测公司，也没有把数据上传云端，而是完成了本地实验与本地计算。</p>
+      </div>
+      <div class="card">
+        <h3>GLI 闭环的真人样本</h3>
+        <p>从 AI 辅助设计 Panel，到手动完成湿实验，再到测序、basecalling、比对和后续变异分析，这个案例对应 Design、Build、Test、Learn 四个环节，是自动化实验系统的手动版原型。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="section-kicker">Technical Stack</p>
+    <h2>核心系统拆解</h2>
+    <div class="data-grid">
+      <div class="card">
+        <h3>硬件</h3>
+        <p>Oxford Nanopore MinION Mk1D、R10.4.1 flow cell、加热块、微量离心机、涡旋混合器、移液器、DIY 磁力架和基础湿实验耗材。</p>
+        <p class="tagline">MinION · Flow Cell · Pipette · DIY Lab</p>
+      </div>
+      <div class="card">
+        <h3>湿实验</h3>
+        <p>口腔拭子采集颊细胞，Monarch gDNA 提取，SQK-LSK114 连接法建库，Flow Cell priming 与上样，48 小时连续测序。</p>
+        <p class="tagline">DNA Extraction · Library Prep · Sequencing</p>
+      </div>
+      <div class="card">
+        <h3>干实验</h3>
+        <p>MinKNOW 采集信号，Dorado HAC 实时 basecalling，SUP 后处理提升精度，minimap2 与 samtools 生成 aligned BAM 并完成质控。</p>
+        <p class="tagline">Dorado · minimap2 · samtools · BAM</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="section-kicker">Workflow</p>
+    <h2>从样本到基因组文件</h2>
+    <div class="flow">
+      <div class="step"><p class="step-num">01 DESIGN</p><h3>设计测序策略</h3><p>用 AI 辅助整理基因知识、设计目标 Panel，并决定全基因组浅层或目标区域深度测序策略。</p></div>
+      <div class="step"><p class="step-num">02 BUILD</p><h3>提取与建库</h3><p>从口腔拭子中提取 gDNA，完成末端修复、磁珠纯化和 adapter 连接，得到可上机文库。</p></div>
+      <div class="step"><p class="step-num">03 TEST</p><h3>MinION 测序</h3><p>加载 flow cell，运行 48 小时，持续监控 pore occupancy、read length 和 translocation speed。</p></div>
+      <div class="step"><p class="step-num">04 COMPUTE</p><h3>本地计算</h3><p>用 Dorado 做 basecalling，再通过 minimap2、samtools、mosdepth 完成比对、排序、索引和覆盖度分析。</p></div>
+      <div class="step"><p class="step-num">05 LEARN</p><h3>反馈优化</h3><p>根据覆盖度、失败点和变异分析结果，优化下一轮实验条件、Panel 设计和自动化策略。</p></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="section-kicker">Lessons Learned</p>
+    <h2>关键踩坑经验</h2>
+    <div class="two-col">
+      <div class="card">
+        <h3>实验侧风险</h3>
+        <p>DNA 定量要前置；flow cell 最怕气泡；酶类试剂不能涡旋；Ligation Buffer 粘稠，需要慢速吸打混匀；第二次纯化必须使用 Long Fragment Buffer，不能用乙醇替代。</p>
+      </div>
+      <div class="card">
+        <h3>工程侧启示</h3>
+        <p>真正困难的不是单个步骤，而是每一步都要稳定可复现。移液器精度、气泡控制、磁珠干燥时间、计算硬件加速，都会影响整个闭环的可靠性和成本。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="section-kicker">GLI Mapping</p>
+    <h2>对自动化实验的启示</h2>
+    <p class="quote">Seth 做的是 Design-Build-Test-Learn 闭环的“手动版”。GLI 的价值，是把人的移液、监控、分析和迭代判断，逐步交给自动化工作站与 AI Agent。</p>
+    <div class="data-grid" style="margin-top:1.5rem;">
+      <div class="card"><h3>Design</h3><p>LLM 整合 UCSC、Ensembl、OMIM、CPIC 等知识，辅助生成 BED 文件和实验方案。</p></div>
+      <div class="card"><h3>Build / Test</h3><p>人工湿实验可映射为移液机器人、样品处理设备和测序仪的自动化执行与监控。</p></div>
+      <div class="card"><h3>Learn</h3><p>AI 分析测序结果、定位失败原因、提出下一轮实验参数，形成反馈优化闭环。</p></div>
+    </div>
+  </section>
+
+  <footer>
+    基于《Seth-Howes-家庭基因组测序-完整案例v2.docx》整理 · 黄心颖项目集
+  </footer>
+</main>
+</body>
+</html>
