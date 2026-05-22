@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="STM32 智能环境监测系统 v1.2 视频、流程图与项目全流程展示">
+<title>STM32 智能环境监测系统 v1.2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Han+Serif+SC:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f0a;
+    --bg2: #0f1a0f;
+    --text: #e8f0e8;
+    --text-dim: #7a9a7a;
+    --accent: #5adf8a;
+    --accent2: #2eb85c;
+    --accent3: #a8f0c0;
+    --border: #1e3a1e;
+    --card: #0d1a0d;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background:
+      radial-gradient(circle at 15% 10%, rgba(90, 223, 138, 0.08), transparent 28rem),
+      linear-gradient(180deg, var(--bg2) 0%, var(--bg) 38%);
+    color: var(--text);
+    font-family: 'Source Han Serif SC', 'Playfair Display', serif;
+    font-size: 16px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.5;
+  }
+
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1rem 2.5rem;
+    background: rgba(10, 15, 10, 0.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-name {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 1.05rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    text-decoration: none;
+  }
+
+  .back-link {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .back-link:hover { color: var(--accent); }
+
+  main {
+    width: min(1120px, calc(100% - 3rem));
+    margin: 0 auto;
+  }
+
+  .hero {
+    min-height: 46vh;
+    display: grid;
+    align-content: end;
+    padding: 5rem 0 3rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 7vw, 6rem);
+    line-height: 0.98;
+    font-weight: 900;
+    max-width: 920px;
+    margin-bottom: 1.5rem;
+  }
+
+  .lead {
+    max-width: 780px;
+    color: var(--accent3);
+    font-size: clamp(1rem, 2vw, 1.2rem);
+  }
+
+  section {
+    padding: 4rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    margin-bottom: 0.8rem;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    line-height: 1.1;
+    margin-bottom: 1.4rem;
+  }
+
+  .video-shell {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem;
+  }
+
+  .video-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #050805;
+    border: 1px solid rgba(90, 223, 138, 0.18);
+    overflow: hidden;
+  }
+
+  .video-frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: 1.4rem;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .meta-item {
+    background: var(--card);
+    padding: 1.1rem;
+  }
+
+  .meta-item strong {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.45rem;
+    text-transform: uppercase;
+  }
+
+  .meta-item span {
+    color: var(--text-dim);
+    font-size: 0.92rem;
+  }
+
+  .flow-image {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem;
+    margin-top: 1.2rem;
+  }
+
+  .flow-image img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid rgba(90, 223, 138, 0.18);
+    background: #fff;
+  }
+
+  .doc-intro {
+    max-width: 900px;
+    color: var(--accent3);
+    font-size: 1.05rem;
+    margin-bottom: 2rem;
+  }
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .content-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.35rem;
+  }
+
+  .content-card.wide { grid-column: 1 / -1; }
+
+  .content-card h3 {
+    font-family: 'Playfair Display', serif;
+    color: var(--accent3);
+    font-size: 1.24rem;
+    line-height: 1.2;
+    margin-bottom: 0.8rem;
+  }
+
+  .content-card p,
+  .content-card li {
+    color: var(--text-dim);
+    font-size: 0.94rem;
+  }
+
+  .content-card p + p { margin-top: 0.8rem; }
+
+  .content-card ul {
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .logic-chain {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 1rem;
+  }
+
+  .logic-chain span {
+    border: 1px solid var(--border);
+    color: var(--accent3);
+    background: rgba(90, 223, 138, 0.06);
+    border-radius: 4px;
+    padding: 0.45rem 0.65rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.76rem;
+  }
+
+  footer {
+    padding: 2rem 0 3rem;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+  }
+
+  @media (max-width: 840px) {
+    nav { padding: 0.9rem 1.2rem; }
+    main { width: min(100% - 2rem, 1120px); }
+    .hero { min-height: auto; padding-top: 4rem; }
+    .meta-grid { grid-template-columns: 1fr; }
+    .content-grid { grid-template-columns: 1fr; }
+    .video-shell { padding: 0.65rem; }
+    .flow-image { padding: 0.65rem; overflow-x: auto; }
+    .flow-image img { min-width: 760px; }
+  }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-name" href="index.html">黄心颖</a>
+  <a class="back-link" href="index.html#projects">← 返回核心项目</a>
+</nav>
+
+<main>
+  <section class="hero">
+    <p class="eyebrow">Embedded System · Automation · v1.2</p>
+    <h1>STM32 智能环境监测系统</h1>
+    <p class="lead">
+      基于 STM32 的智能小狗环境测温与语音交互系统，将温度采集、OLED 显示、语音唤醒、温度播报和高低温提醒整合成完整的信息反馈闭环。
+    </p>
+  </section>
+
+  <section>
+    <p class="section-kicker">Project Demo</p>
+    <h2>视频展示</h2>
+    <div class="video-shell">
+      <div class="video-frame">
+        <iframe src="https://player.bilibili.com/player.html?bvid=BV1DTG86PE4G&page=1" scrolling="no" allowfullscreen="true" title="STM32 智能环境监测系统 v1.2 视频展示"></iframe>
+      </div>
+    </div>
+    <div class="meta-grid" aria-label="项目摘要">
+      <div class="meta-item"><strong>Controller</strong><span>STM32F103C8T6 微控制器</span></div>
+      <div class="meta-item"><strong>Workflow</strong><span>采集 · 显示 · 唤醒 · 播报 · 提醒</span></div>
+      <div class="meta-item"><strong>Version</strong><span>v1.2 视频 + 流程图 + 全流程展示</span></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="section-kicker">System Flow</p>
+    <h2>项目全流程梳理图</h2>
+    <div class="flow-image">
+      <img src="assets/stm32-flow-v1.png" alt="智能小狗测温系统项目全流程梳理图">
+    </div>
+  </section>
+
+  <section>
+    <p class="section-kicker">Project Workflow Overview</p>
+    <h2>项目全流程展示</h2>
+    <p class="doc-intro">
+      本项目围绕传统测温设备“只显示、不提醒、交互弱”的痛点，设计具有实时测温、OLED 显示、语音唤醒、温度播报和高低温提醒功能的智能小狗测温装置。核心目标是将单一温度数据转化为更具场景感和互动性的反馈体验，实现“数据主动服务用户”的智能感知模式。
+    </p>
+
+    <div class="content-grid">
+      <article class="content-card wide">
+        <h3>项目名称</h3>
+        <p>基于 STM32 的智能小狗环境测温与语音交互系统。项目成果为一个可正常运行的智能小狗温度检测原型机，可完成温度采集、语音控制与语音反馈等功能。</p>
+      </article>
+
+      <article class="content-card">
+        <h3>一、需求分析与系统目标拆解</h3>
+        <p>项目初期先从用户需求和传统设备缺陷出发：传统环境温度检测设备通常只能被动显示温度，用户需要主动查看数值，当温度过高或过低时也缺少及时提醒，容易造成信息被忽略。</p>
+        <ul>
+          <li>设备需要能够持续采集环境温度。</li>
+          <li>设备需要通过 OLED 屏幕进行实时可视化显示。</li>
+          <li>设备需要支持语音唤醒、温度播报和温度异常提醒。</li>
+        </ul>
+      </article>
+
+      <article class="content-card">
+        <h3>二、系统架构设计</h3>
+        <p>系统被拆分为控制模块、温度采集模块、交互与显示模块、供电与传输模块、结构与连接模块五个部分。STM32 开发板作为系统核心，协调传感器、OLED、语音识别、扬声器、麦克风和供电模块运行。</p>
+        <p>我在项目中重点负责小狗运行逻辑设计和流程图绘制，从系统运行链路出发梳理完整闭环。</p>
+      </article>
+
+      <article class="content-card wide">
+        <h3>三、小狗运行逻辑设计</h3>
+        <p>运行逻辑可以概括为一条从感知到反馈的信息流：</p>
+        <div class="logic-chain" aria-label="小狗运行逻辑">
+          <span>系统上电</span>
+          <span>STM32 初始化</span>
+          <span>温度采集</span>
+          <span>OLED 显示</span>
+          <span>等待语音指令</span>
+          <span>语音唤醒</span>
+          <span>温度区间判断</span>
+          <span>扬声器播报反馈</span>
+        </div>
+      </article>
+
+      <article class="content-card">
+        <h3>温度判断逻辑</h3>
+        <ul>
+          <li>低于 15℃：播报当前温度，并提醒用户注意保暖。</li>
+          <li>15℃ 到 30℃：播报当前温度，提示温度正常。</li>
+          <li>高于 30℃：播报当前温度，并提醒用户注意防暑。</li>
+        </ul>
+      </article>
+
+      <article class="content-card">
+        <h3>四、流程图绘制与系统逻辑可视化</h3>
+        <p>我负责将抽象功能转化为清晰流程图，展示设备从上电到反馈的完整路径，并明确模块之间的数据流向和控制关系，降低硬件搭建、程序开发和展示讲解之间的信息差。</p>
+      </article>
+
+      <article class="content-card">
+        <h3>五、合作构建测温系统</h3>
+        <p>硬件系统由 STM32F103C8T6 微控制器、DS18B20 温度传感器、SU03T 语音识别芯片、麦克风、扬声器和 OLED 屏幕组成。我的工作重点是保证运行逻辑与实际硬件功能一致，让采集、显示、唤醒、播报和提醒真正协同。</p>
+      </article>
+
+      <article class="content-card">
+        <h3>六、测试验证与场景优化</h3>
+        <ul>
+          <li>正常温度：OLED 显示约 22.7℃，语音播报当前温度。</li>
+          <li>高温场景：传感器加热至约 30.1℃，系统播报温度并提醒注意防暑。</li>
+          <li>低温场景：模拟低温环境，OLED 显示约 11.5℃，系统播报温度并提醒多穿衣。</li>
+        </ul>
+        <p>项目最终实现唤醒后 1 秒内反馈、温度检测范围 -10℃ 至 85℃、误差约 ±0.5℃ 的预期性能目标。</p>
+      </article>
+
+      <article class="content-card wide">
+        <h3>七、展示视频剪辑与成果表达</h3>
+        <p>在成果展示阶段，我负责剪辑展示视频，将项目功能、设备运行逻辑和实际测试效果进行可视化呈现。视频重点展示上电启动、OLED 实时显示、语音唤醒、温度播报、高温提醒和低温提醒等场景。</p>
+        <p>这部分工作不仅是简单剪辑，而是对项目成果进行系统化表达：需要理解整个系统的工作逻辑，再将其转化为观众容易理解的展示节奏，突出趣味化外观、语音交互、实时反馈和温度异常提醒。</p>
+      </article>
+    </div>
+  </section>
+
+  <footer>
+    STM32 智能环境监测系统 v1.2 · 黄心颖项目集
+  </footer>
+</main>
+</body>
+</html>
