@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>食管异物钳改进设计 v1.3 — 黄心颖</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Han+Serif+SC:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0f0a;
+  --bg2: #0f1a0f;
+  --text: #e8f0e8;
+  --text-dim: #7a9a7a;
+  --accent: #5adf8a;
+  --accent2: #2eb85c;
+  --accent3: #a8f0c0;
+  --border: #1e3a1e;
+  --card: #0d1a0d;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Source Han Serif SC', 'Playfair Display', serif;
+  font-size: 16px;
+  line-height: 1.75;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.5;
+}
+
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1rem 2.5rem;
+  background: rgba(10, 15, 10, 0.88);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-name {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 1.05rem;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  text-decoration: none;
+}
+
+.back-link {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.back-link:hover { color: var(--accent); }
+
+main {
+  width: min(1120px, calc(100% - 3rem));
+  margin: 0 auto;
+}
+
+/* Hero */
+.hero {
+  min-height: 74vh;
+  display: grid;
+  align-content: center;
+  padding: 5rem 0 4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.6rem, 7vw, 5.5rem);
+  line-height: 0.98;
+  font-weight: 900;
+  max-width: 960px;
+  margin-bottom: 1.6rem;
+}
+
+.lead {
+  max-width: 780px;
+  color: var(--accent3);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin-top: 3rem;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.metric {
+  background: var(--bg2);
+  padding: 1.35rem;
+  min-height: 118px;
+}
+
+.metric strong {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+  font-size: 1.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.metric span {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+/* Sections */
+.section {
+  padding: 4.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 2.5rem;
+}
+
+.section-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 2.5rem;
+}
+
+.card {
+  background: var(--bg2);
+  padding: 2rem;
+}
+
+.card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  color: var(--accent3);
+  margin-bottom: 0.8rem;
+  font-weight: 700;
+}
+
+.card p {
+  color: var(--text-dim);
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 900;
+  line-height: 1.1;
+  max-width: 800px;
+}
+
+/* Constraint Table */
+.constraint-table {
+  margin-top: 2.5rem;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.constraint-table th,
+.constraint-table td {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.constraint-table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--accent2);
+  padding-bottom: 1rem;
+}
+
+.constraint-table td {
+  color: var(--text-dim);
+}
+
+.constraint-table td:first-child {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.constraint-table td:nth-child(3) {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* Workflow Steps */
+.workflow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 2.5rem;
+}
+
+.step {
+  background: var(--bg2);
+  padding: 2rem 1.5rem;
+  position: relative;
+}
+
+.step-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  margin-bottom: 0.8rem;
+  display: block;
+}
+
+.step h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  color: var(--accent3);
+  margin-bottom: 0.6rem;
+  font-weight: 700;
+}
+
+.step p {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  line-height: 1.65;
+}
+
+/* Decision Matrix */
+.matrix-row {
+  display: grid;
+  grid-template-columns: 200px 80px 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 2.5rem;
+}
+
+.matrix-cell {
+  background: var(--bg2);
+  padding: 0.9rem 1.2rem;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+}
+
+.matrix-cell:first-child {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.matrix-cell:nth-child(2) {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+  font-size: 0.85rem;
+  justify-content: center;
+}
+
+.matrix-cell:nth-child(3) {
+  color: var(--text-dim);
+}
+
+/* Verification Grid */
+.verify-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 2.5rem;
+}
+
+.verify-item {
+  background: var(--bg2);
+  padding: 1.5rem;
+}
+
+.verify-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.verify-value {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+  font-size: 1.15rem;
+  margin-bottom: 0.3rem;
+}
+
+.verify-note {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+/* Bullet list */
+.bullet-list {
+  margin-top: 1.5rem;
+  list-style: none;
+}
+
+.bullet-list li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.8rem;
+  color: var(--text-dim);
+  font-size: 0.92rem;
+}
+
+.bullet-list li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Subsystem cards */
+.subsystem {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 2.5rem;
+  margin-top: 2rem;
+}
+
+.subsystem h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  color: var(--accent3);
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.subsystem p {
+  color: var(--text-dim);
+  font-size: 0.92rem;
+  line-height: 1.75;
+}
+
+.subsystem + .subsystem {
+  margin-top: 1px;
+  border-top: none;
+}
+
+/* Result Table */
+.result-table {
+  margin-top: 2.5rem;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.result-table th,
+.result-table td {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.result-table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--accent2);
+}
+
+.result-table td {
+  color: var(--text-dim);
+}
+
+.result-table td:first-child {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.result-table .pass {
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+}
+
+/* Footer */
+footer {
+  padding: 3rem 0;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .metrics { grid-template-columns: repeat(2, 1fr); }
+  .section-grid, .section-grid-2 { grid-template-columns: 1fr; }
+  .section-grid-3, .verify-grid { grid-template-columns: 1fr; }
+  .workflow { grid-template-columns: 1fr; }
+  .matrix-row { grid-template-columns: 1fr; }
+  .matrix-cell { padding: 0.6rem 1rem; }
+  nav { padding: 0.8rem 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-name">黄心颖</a>
+  <a href="index.html#projects" class="back-link">← 返回核心项目</a>
+</nav>
+
+<main>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="eyebrow">医疗器械工程设计 · 2025.09 – 2026.01 · v1.3</div>
+    <h1>食管异物钳改进设计</h1>
+    <p class="lead">针对传统食管异物钳"钳头固定、适应性差"和"手柄单点受力、操作易疲劳"两大临床痛点，设计并制造了一款双功能通用食管异物钳原型——在同一钳头上集成鳄鱼齿与高摩擦凸起，配合多指分力手柄，一次操作即可处理多种异物类型，无需术中更换器械。</p>
+    <div class="metrics">
+      <div class="metric">
+        <strong>≤0.1 MPa</strong>
+        <span>组织接触压力<br>满足软组织安全标准</span>
+      </div>
+      <div class="metric">
+        <strong>388.8 MPa</strong>
+        <span>最大等效应力<br>低于 Ti-6Al-4V 屈服强度</span>
+      </div>
+      <div class="metric">
+        <strong>0.153 mm</strong>
+        <span>最大位移<br>不影响夹持精度</span>
+      </div>
+      <div class="metric">
+        <strong>6 → 1</strong>
+        <span>概念方案收敛<br>加权评分矩阵决策</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Problem Definition -->
+  <div class="section">
+    <div class="eyebrow">Problem Definition</div>
+    <h2>问题定义</h2>
+    <div class="section-grid" style="margin-top:2.5rem">
+      <div class="card">
+        <h3>工具层面</h3>
+        <p>钳头为固定单一构型，面对光滑/粗糙/软/硬等不同异物时无法自适应夹持。术中被迫更换器械，导致手术时间延长、异物移位风险上升。医院需维护大量专用器械库存，增加成本与管理复杂度。</p>
+      </div>
+      <div class="card">
+        <h3>人因层面</h3>
+        <p>手柄依赖拇指+中指单点受力，长时间操作引发疲劳，直接影响夹持精度和手术安全性。在急诊场景下，疲劳累积导致的操作失真是潜在的并发症诱因。</p>
+      </div>
+    </div>
+    <p style="margin-top:1.5rem; color:var(--text-dim); font-size:0.92rem; max-width:800px">这两个问题并非独立存在——更换器械的频次越高，医生的累积操作负担越大，精度下降又进一步增加并发症概率。改进方向必须同时解决工具适应性和人因工效，而非单一优化。</p>
+  </div>
+
+  <!-- Constraint Modeling -->
+  <div class="section">
+    <div class="eyebrow">Constraint Modeling</div>
+    <h2>工程约束建模</h2>
+    <p style="color:var(--text-dim); font-size:0.92rem; margin-top:1rem; max-width:800px">将临床痛点转化为可量化的设计规范，建立 10 项约束指标。这些约束构成了后续所有设计决策的评价基准——任何方案取舍都必须回溯到这组量化指标。</p>
+    <table class="constraint-table">
+      <thead>
+        <tr>
+          <th>核心约束</th>
+          <th>量化指标</th>
+          <th>标准依据</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>生物相容性</td>
+          <td>接触面光滑无锐角，医用级材料</td>
+          <td>ISO 10993-1:2018</td>
+        </tr>
+        <tr>
+          <td>夹持有效性</td>
+          <td>光滑球形异物夹持力 ≥15N，静摩擦系数 ≥0.3</td>
+          <td>ESGE 临床指南 2016</td>
+        </tr>
+        <tr>
+          <td>内窥镜兼容性</td>
+          <td>外径 ≤2.8mm，工作长度 ≥120cm</td>
+          <td>ASGE 操作规范 2011</td>
+        </tr>
+        <tr>
+          <td>组织安全</td>
+          <td>钳口闭合时组织接触压力 ≤0.1 MPa</td>
+          <td>GB 9706.1-2020</td>
+        </tr>
+        <tr>
+          <td>操作精度</td>
+          <td>力传导效率 ≥85%，开合角度 0°–90°</td>
+          <td>ANSI/AAMI HE75:2009</td>
+        </tr>
+        <tr>
+          <td>结构耐久</td>
+          <td>≥10000 次开合循环，夹持力衰减 ≤10%</td>
+          <td>ISO 7153-1:2016</td>
+        </tr>
+        <tr>
+          <td>灭菌耐受</td>
+          <td>≥500 次高压蒸汽灭菌循环</td>
+          <td>ISO 17665-1:2006</td>
+        </tr>
+        <tr>
+          <td>扭转刚度</td>
+          <td>0.1 N·m 扭矩下扭转角 ≤5°</td>
+          <td>ISO 12870:2016</td>
+        </tr>
+        <tr>
+          <td>尺寸公差</td>
+          <td>关键尺寸公差 ≤±0.01mm，径向间隙 0.02–0.05mm</td>
+          <td>ASME Y14.5-2018</td>
+        </tr>
+        <tr>
+          <td>人因工效</td>
+          <td>握持力 ≤10N，操作力 ≤5N，30min 疲劳 &lt; Borg 3 级</td>
+          <td>ANSI/AAMI HE75:2009</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Concept Convergence -->
+  <div class="section">
+    <div class="eyebrow">Concept Convergence</div>
+    <h2>方案生成与收敛</h2>
+    <p style="color:var(--text-dim); font-size:0.92rem; margin-top:1rem; max-width:800px">提出 6 个候选方案，覆盖可换夹头、复合钳头、附加功能、构型优化等不同工程路径。建立五维加权评分矩阵，基于安全性、功能性、稳定性、兼容性、人因工效进行量化决策。</p>
+
+    <div class="matrix-row">
+      <div class="matrix-cell">安全性</div>
+      <div class="matrix-cell">4.83</div>
+      <div class="matrix-cell">最高优先级——任何新增结构不得引入脱落/残留风险</div>
+    </div>
+    <div class="matrix-row">
+      <div class="matrix-cell">操作功能性</div>
+      <div class="matrix-cell">3.83</div>
+      <div class="matrix-cell">核心指标——必须解决多异物适应性问题</div>
+    </div>
+    <div class="matrix-row">
+      <div class="matrix-cell">结构稳定性</div>
+      <div class="matrix-cell">3.67</div>
+      <div class="matrix-cell">可靠性——保留已通过临床验证的主体结构</div>
+    </div>
+    <div class="matrix-row">
+      <div class="matrix-cell">内窥镜兼容性</div>
+      <div class="matrix-cell">3.00</div>
+      <div class="matrix-cell">约束条件——不改变器械整体外径</div>
+    </div>
+    <div class="matrix-row">
+      <div class="matrix-cell">人因工效</div>
+      <div class="matrix-cell">3.67</div>
+      <div class="matrix-cell">使用体验——降低操作疲劳</div>
+    </div>
+
+    <div style="margin-top:2rem; padding:1.5rem 2rem; background:var(--bg2); border:1px solid var(--border)">
+      <p style="color:var(--accent3); font-size:0.95rem"><strong style="color:var(--accent)">决策结论 → Concept 2</strong>（综合得分 74.14/100）</p>
+      <p style="color:var(--text-dim); font-size:0.9rem; margin-top:0.5rem">可换夹头方案虽思路直接，但新增连接界面引入松脱、密封、灭菌兼容等额外风险。复合钳头方案通过最小化结构改动——仅修改钳头形状 + 手柄局部——在不引入新风险源的前提下同时解决两个核心问题。典型的"约束驱动设计"：在多重边界条件下寻找改动最小、风险最低的解。</p>
+    </div>
+  </div>
+
+  <!-- Detailed Design -->
+  <div class="section">
+    <div class="eyebrow">Detailed Design</div>
+    <h2>子系统详细设计</h2>
+
+    <div class="subsystem">
+      <h3>双功能钳头</h3>
+      <p>前段：鳄鱼齿状细密锯齿，咬合软质/粗糙表面异物（鱼骨、碎骨等），齿形提供多点接触增加摩擦。</p>
+      <p style="margin-top:0.5rem">后段：高摩擦凸起区域，适配光滑硬质异物（硬币、纽扣电池等），通过面接触+摩擦系数提升防止滑脱。</p>
+      <p style="margin-top:0.5rem">两种功能区域在同一钳头上共存，操作者无需更换器械即可应对不同异物类型。这是整个设计的核心——用构型多样性替代工具数量堆叠。</p>
+    </div>
+
+    <div class="subsystem">
+      <h3>内部传动结构</h3>
+      <p>连接人因端（手柄）与功能端（钳头）的核心机构。力传导路径：手柄挤压力 → 杆内传动机构 → 钳头末端开合。</p>
+      <p style="margin-top:0.5rem">设计约束：传动杆外径 ≤2.8mm，工作长度 ≥120cm，在极狭窄截面内实现可靠的力传导。传动效率 ≥85%，操作者通过手感即可判断夹持状态；开合角度 0°–90° 线性可控。径向间隙控制在 0.02–0.05mm，避免因间隙过大导致操作失真或钳口空转。</p>
+    </div>
+
+    <div class="subsystem">
+      <h3>人因工效手柄</h3>
+      <p>在原有拇指+中指夹持基础上增加无名指受力点，将单点集中受力改为三指分布式受力。握持力 ≤10N，操作力 ≤5N，连续使用 30 分钟后手部不适低于 Borg CR10 量表 3 级。不改变握持习惯的前提下，通过局部几何优化实现疲劳降低。</p>
+    </div>
+  </div>
+
+  <!-- FEA Verification -->
+  <div class="section">
+    <div class="eyebrow">FEA Simulation</div>
+    <h2>有限元仿真验证</h2>
+    <p style="color:var(--text-dim); font-size:0.92rem; margin-top:1rem; max-width:800px">对 Ti-6Al-4V 钛合金原型进行结构仿真，验证"0.1 MPa 载荷下无塑性变形"的设计规范。边界条件：固定约束手柄近端 138 个面（模拟医生握持），钳口施加 5N 集中力（由 P=F/S，S≥50mm² 时 P≤0.1MPa）。</p>
+
+    <div class="verify-grid">
+      <div class="verify-item">
+        <div class="verify-label">Safety Factor</div>
+        <div class="verify-value">≤ 8</div>
+        <div class="verify-note">满足医疗器械 ≥5 标准</div>
+      </div>
+      <div class="verify-item">
+        <div class="verify-label">Max von Mises Stress</div>
+        <div class="verify-value">388.8 MPa</div>
+        <div class="verify-note">低于 Ti-6Al-4V 屈服强度<br>无塑性变形风险</div>
+      </div>
+      <div class="verify-item">
+        <div class="verify-label">Max Displacement</div>
+        <div class="verify-value">0.153 mm</div>
+        <div class="verify-note">不影响夹持精度</div>
+      </div>
+      <div class="verify-item">
+        <div class="verify-label">Max Equivalent Strain</div>
+        <div class="verify-value">0.005</div>
+        <div class="verify-note">弹性变形范围内<br>无永久结构损伤</div>
+      </div>
+      <div class="verify-item">
+        <div class="verify-label">Mesh Convergence</div>
+        <div class="verify-value">~2% 误差</div>
+        <div class="verify-note">5%→2% 区间显著收敛<br>数值解可信</div>
+      </div>
+      <div class="verify-item">
+        <div class="verify-label">Tissue Pressure</div>
+        <div class="verify-value">≤ 0.1 MPa</div>
+        <div class="verify-note">满足软组织安全标准</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prototype Iteration -->
+  <div class="section">
+    <div class="eyebrow">Prototype & Iteration</div>
+    <h2>原型制造与问题迭代</h2>
+    <div class="section-grid-3" style="margin-top:2.5rem">
+      <div class="card">
+        <h3>制造</h3>
+        <p>3D 打印 PLA 原型，整体放大 2.4 倍适配打印尺寸限制。所有部件装配顺畅，传动逻辑清晰——手柄开合力可准确传递至夹头末端。</p>
+      </div>
+      <div class="card">
+        <h3>问题定位</h3>
+        <p>夹口偶发卡顿。根因分析：PLA 为脆性热塑性塑料，关键传力件受力后微变形；打印表面残留毛刺增大配合面摩擦阻力。</p>
+      </div>
+      <div class="card">
+        <h3>改进路径</h3>
+        <p>高强度胶加固传动接口补偿 PLA 刚性缺陷；精密打磨去毛刺并预留微小间隙降低摩擦。验证装配公差在合理范围内。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Verification Summary -->
+  <div class="section">
+    <div class="eyebrow">Verification Summary</div>
+    <h2>验证总结</h2>
+    <table class="result-table">
+      <thead>
+        <tr>
+          <th>验证项</th>
+          <th>方法</th>
+          <th>结果</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>生物相容性</td>
+          <td>ISO 10993-1:2018</td>
+          <td class="pass">PASS</td>
+        </tr>
+        <tr>
+          <td>夹持力 & 防滑</td>
+          <td>功能测试 + FEA</td>
+          <td class="pass">PASS</td>
+        </tr>
+        <tr>
+          <td>操作精度</td>
+          <td>功能测试</td>
+          <td class="pass">PASS</td>
+        </tr>
+        <tr>
+          <td>组织安全（≤0.1 MPa）</td>
+          <td>FEA</td>
+          <td class="pass">PASS</td>
+        </tr>
+        <tr>
+          <td>尺寸公差</td>
+          <td>CAD 模型</td>
+          <td class="pass">PASS</td>
+        </tr>
+        <tr>
+          <td>扭转刚度</td>
+          <td>ISO 12870:2016</td>
+          <td style="color:var(--text-dim); font-family:'JetBrains Mono',monospace; font-size:0.82rem">N/A</td>
+        </tr>
+        <tr>
+          <td>灭菌耐受</td>
+          <td>ISO 17665-1:2006</td>
+          <td style="color:var(--text-dim); font-family:'JetBrains Mono',monospace; font-size:0.82rem">N/A</td>
+        </tr>
+        <tr>
+          <td>结构耐久</td>
+          <td>ISO 7153-1:2016</td>
+          <td style="color:var(--text-dim); font-family:'JetBrains Mono',monospace; font-size:0.82rem">N/A</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top:1.5rem; color:var(--text-dim); font-size:0.85rem">标注 N/A 的项目因原型材料（PLA）与最终产品材料（Ti-6Al-4V）差异，需在金属原型阶段补充验证。</p>
+  </div>
+
+  <!-- Workflow -->
+  <div class="section">
+    <div class="eyebrow">Engineering Workflow</div>
+    <h2>工程思维全流程</h2>
+    <div class="workflow">
+      <div class="step">
+        <span class="step-num">01 DEFINE</span>
+        <h3>问题定义</h3>
+        <p>临床调研，识别工具适应性与人因工效两个相互关联的系统性缺陷</p>
+      </div>
+      <div class="step">
+        <span class="step-num">02 MODEL</span>
+        <h3>约束建模</h3>
+        <p>将临床痛点转化为 10 项可量化设计规范，建立决策评价基准</p>
+      </div>
+      <div class="step">
+        <span class="step-num">03 CONVERGE</span>
+        <h3>方案收敛</h3>
+        <p>6 个候选方案，五维加权评分矩阵，约束驱动的最小改动决策</p>
+      </div>
+      <div class="step">
+        <span class="step-num">04 DESIGN</span>
+        <h3>详细设计</h3>
+        <p>钳头、传动、手柄三个子系统并行设计，满足全部量化约束</p>
+      </div>
+      <div class="step">
+        <span class="step-num">05 VERIFY</span>
+        <h3>仿真验证</h3>
+        <p>FEA 结构仿真 + 原型装配验证，定位问题并迭代改进</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    基于 Team2 食管异物钳改进设计项目整理 · v1.3 · 黄心颖项目集
+  </footer>
+
+</main>
+</body>
+</html>
